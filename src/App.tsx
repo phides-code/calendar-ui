@@ -1,12 +1,15 @@
 import styled from 'styled-components';
-import MainComponent from './MainComponent';
-import { MobileProvider } from './MobileContext';
+import MainComponent from './components/MainComponent';
+import { MobileProvider } from './context/MobileContext';
+import { DateProvider } from './context/DateContext';
 
 const App = () => {
     return (
         <Wrapper>
             <MobileProvider>
-                <MainComponent />
+                <DateProvider>
+                    <MainComponent />
+                </DateProvider>
             </MobileProvider>
         </Wrapper>
     );
