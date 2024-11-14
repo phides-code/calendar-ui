@@ -13,6 +13,7 @@ const CreateEventForm = ({ setShowCreateForm }: CreateEventFormProps) => {
     const handleSubmit = () => {
         console.log('submitting new event:');
 
+        console.log('epoch: ' + selectedDate?.getTime());
         console.log({
             date: selectedDate as Date,
             description: newEventDescription,

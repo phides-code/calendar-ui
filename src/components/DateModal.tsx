@@ -16,7 +16,7 @@ const DateModal = ({ closeModal }: DateModalProps) => {
 
     const eventsOnThisDay = events.filter(
         (event: CalendarEvent) =>
-            event.date.toDateString() === selectedDate?.toDateString()
+            event.eventDate.toDateString() === selectedDate?.toDateString()
     );
 
     const handleCreateClick = () => setShowCreateForm(true);
@@ -29,8 +29,8 @@ const DateModal = ({ closeModal }: DateModalProps) => {
                 <ul>
                     {eventsOnThisDay.map((event, i) => (
                         <li key={i}>
-                            <div>{event.date.toTimeString()}</div>
-                            <div>{event.description}</div>
+                            <div>{event.eventDate.toTimeString()}</div>
+                            <div>{event.eventDescription}</div>
                         </li>
                     ))}
                 </ul>
