@@ -1,16 +1,16 @@
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import type { CalendarEvent } from '../data';
-import { events } from '../data';
 import { useContext, useState } from 'react';
 import CreateEventForm from './CreateEventForm';
 import { DateContext } from '../context/DateContext';
+import type { CalendarEvent } from '../features/events/eventsApiSlice';
 
 interface DateModalProps {
+    events: CalendarEvent[];
     closeModal: () => void;
 }
 
-const DateModal = ({ closeModal }: DateModalProps) => {
+const DateModal = ({ closeModal, events }: DateModalProps) => {
     const [showCreateForm, setShowCreateForm] = useState(false);
 
     const { selectedDate } = useContext(DateContext);
