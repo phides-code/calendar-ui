@@ -6,24 +6,21 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { DateContext } from '../context/DateContext';
 
 const MainComponent = () => {
+    // store selectedDate as ISO string '2024-11-15T12:20:43.267Z'
     const { selectedDate, setSelectedDate } = useContext(DateContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
-    const today = new Date();
-
     const handleOnChange = (date: Date) => {
-        setSelectedDate(date as Date);
+        setSelectedDate(date.toISOString());
         openModal();
     };
 
     // Function to check if a date has an event
     const hasEvent = (date: Date) =>
-        datesWithEvents.some(
-            (eventDate) => eventDate.toDateString() === date.toDateString()
-        );
+        datesWithEvents.some((eventDate) => eventDate === date.toDateString());
 
     return (
         <>
@@ -31,10 +28,8 @@ const MainComponent = () => {
                 dayClassName={(date: Date) =>
                     hasEvent(date) ? 'event-day' : ''
                 }
-                dateFormat='yyyy/MM/dd'
-                selected={selectedDate}
+                selected={selectedDate ? new Date(selectedDate) : null}
                 onChange={(date) => handleOnChange(date as Date)}
-                minDate={today}
                 todayButton={'Today'}
                 inline
             />

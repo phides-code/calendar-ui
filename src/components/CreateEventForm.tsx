@@ -13,9 +13,8 @@ const CreateEventForm = ({ setShowCreateForm }: CreateEventFormProps) => {
     const handleSubmit = () => {
         console.log('submitting new event:');
 
-        console.log('epoch: ' + selectedDate?.getTime());
         console.log({
-            date: selectedDate as Date,
+            date: selectedDate,
             description: newEventDescription,
         });
         setShowCreateForm(false);
@@ -32,8 +31,10 @@ const CreateEventForm = ({ setShowCreateForm }: CreateEventFormProps) => {
                     placeholder='Enter event description'
                 />
                 <DatePicker
-                    selected={selectedDate}
-                    onChange={(date) => setSelectedDate(date)}
+                    selected={new Date(selectedDate as string)}
+                    onChange={(date) =>
+                        setSelectedDate(date?.toISOString() as string)
+                    }
                     showTimeSelect
                     showTimeSelectOnly
                     timeIntervals={15}

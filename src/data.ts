@@ -1,33 +1,36 @@
 export interface CalendarEvent {
-    eventDate: Date;
+    id: string;
+    eventDate: string;
     eventDescription: string;
 }
 
-const getDatesWithEvents = (events: CalendarEvent[]): Date[] => {
-    const uniqueDays = new Set<number>();
+const getDatesWithEvents = (events: CalendarEvent[]): string[] => {
+    const eventDays = new Set<string>();
 
     events.forEach((event) => {
-        const date = new Date(event.eventDate);
-        date.setHours(0, 0, 0, 0); // Set time to 00:00:00 for each date
-        uniqueDays.add(date.getTime()); // Use timestamp to ensure uniqueness
+        const day = new Date(event.eventDate).toDateString();
+        eventDays.add(day);
     });
 
-    return Array.from(uniqueDays).map((timestamp) => new Date(timestamp));
+    return Array.from(eventDays);
 };
 
 export const events: CalendarEvent[] = [
     {
-        eventDate: new Date('2024-11-29T03:30:00'),
+        id: '001',
+        eventDate: '2024-11-02T15:04:05.000Z',
         eventDescription: 'first event description',
     },
     {
-        eventDate: new Date('2024-11-29T10:30:00'),
+        id: '002',
+        eventDate: '2024-11-20T19:04:05.000Z',
         eventDescription: 'second event description',
     },
     {
-        eventDate: new Date('2024-11-27T10:30:00'),
+        id: '003',
+        eventDate: '2024-11-20T15:04:05.000Z',
         eventDescription: 'third event description',
     },
 ];
 
-export const datesWithEvents: Date[] = getDatesWithEvents(events);
+export const datesWithEvents: string[] = getDatesWithEvents(events);

@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
-import { CalendarEvent, events } from '../data';
+import type { CalendarEvent } from '../data';
+import { events } from '../data';
 import { useContext, useState } from 'react';
 import CreateEventForm from './CreateEventForm';
 import { DateContext } from '../context/DateContext';
@@ -16,7 +17,7 @@ const DateModal = ({ closeModal }: DateModalProps) => {
 
     const eventsOnThisDay = events.filter(
         (event: CalendarEvent) =>
-            event.eventDate.toDateString() === selectedDate?.toDateString()
+            event.eventDate.substring(0, 10) === selectedDate?.substring(0, 10)
     );
 
     const handleCreateClick = () => setShowCreateForm(true);
@@ -24,12 +25,12 @@ const DateModal = ({ closeModal }: DateModalProps) => {
     return ReactDOM.createPortal(
         <Wrapper onClick={closeModal}>
             <ModalContent onClick={(e) => e.stopPropagation()}>
-                <div>{selectedDate?.toDateString()}</div>
+                <div>{selectedDate}</div>
                 <div>Events:</div>
                 <ul>
-                    {eventsOnThisDay.map((event, i) => (
-                        <li key={i}>
-                            <div>{event.eventDate.toTimeString()}</div>
+                    {eventsOnThisDay.map((event) => (
+                        <li key={event.id}>
+                            <div>{event.eventDate}</div>
                             <div>{event.eventDescription}</div>
                         </li>
                     ))}

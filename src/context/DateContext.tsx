@@ -1,8 +1,9 @@
-import { createContext, ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
+import { createContext, useState } from 'react';
 
 interface DateState {
-    selectedDate: Date | null;
-    setSelectedDate: React.Dispatch<React.SetStateAction<Date | null>>;
+    selectedDate: string | null;
+    setSelectedDate: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const DateContext = createContext<DateState>({
@@ -15,7 +16,7 @@ interface DateProviderProps {
 }
 
 const DateProvider = ({ children }: DateProviderProps) => {
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     return (
         <DateContext.Provider value={{ selectedDate, setSelectedDate }}>
