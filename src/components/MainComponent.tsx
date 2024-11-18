@@ -41,22 +41,13 @@ const MainComponent = () => {
 
     const events = data?.data as CalendarEvent[];
 
-    const getDatesWithEvents = (events: CalendarEvent[]): string[] => {
-        const eventDays = new Set<string>();
-
-        events.forEach((event) => {
-            const day = new Date(event.eventDate).toDateString();
-            eventDays.add(day);
-        });
-
-        return Array.from(eventDays);
-    };
-
-    const datesWithEvents: string[] = getDatesWithEvents(events);
-
     // Function to check if a date has an event
     const hasEvent = (date: Date) =>
-        datesWithEvents.some((eventDate) => eventDate === date.toDateString());
+        events.some(
+            (event) =>
+                event.eventDate.substring(0, 10) ===
+                date.toISOString().substring(0, 10)
+        );
 
     return (
         <>
@@ -70,9 +61,7 @@ const MainComponent = () => {
                 inline
             />
 
-            {isModalOpen && (
-                <DateModal events={events} closeModal={closeModal} />
-            )}
+            {isModalOpen && <DateModal closeModal={closeModal} />}
         </>
     );
 };

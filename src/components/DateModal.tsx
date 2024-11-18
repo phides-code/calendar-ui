@@ -3,21 +3,42 @@ import styled from 'styled-components';
 import { useContext, useState } from 'react';
 import CreateEventForm from './CreateEventForm';
 import { DateContext } from '../context/DateContext';
-import type { CalendarEvent } from '../features/events/eventsApiSlice';
+import {
+    selectEventsByDate,
+    useGetEventsQuery,
+    type CalendarEvent,
+} from '../features/events/eventsApiSlice';
 
 interface DateModalProps {
-    events: CalendarEvent[];
     closeModal: () => void;
 }
 
-const DateModal = ({ closeModal, events }: DateModalProps) => {
+const DateModal = ({ closeModal }: DateModalProps) => {
     const [showCreateForm, setShowCreateForm] = useState(false);
 
     const { selectedDate } = useContext(DateContext);
 
-    const eventsOnThisDay = events.filter(
-        (event: CalendarEvent) =>
-            event.eventDate.substring(0, 10) === selectedDate?.substring(0, 10)
+    const { data, isError, isLoading } = useGetEventsQuery();
+
+    if (isError) {
+        return (
+            <div>
+                <h1>Error getting calendar events</h1>
+            </div>
+        );
+    }
+
+    if (isLoading) {
+        return (
+            <div>
+                <h1>Loading...</h1>
+            </div>
+        );
+    }
+
+    const eventsOnThisDay = selectEventsByDate(
+        data?.data as CalendarEvent[],
+        selectedDate as string
     );
 
     const handleCreateClick = () => setShowCreateForm(true);

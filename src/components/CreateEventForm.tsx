@@ -1,23 +1,73 @@
 import { useContext, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { DateContext } from '../context/DateContext';
+import {
+    useGetEventsQuery,
+    usePostEventMutation,
+} from '../features/events/eventsApiSlice';
 
 interface CreateEventFormProps {
     setShowCreateForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const CreateEventForm = ({ setShowCreateForm }: CreateEventFormProps) => {
-    const { selectedDate, setSelectedDate } = useContext(DateContext);
+    const { selectedDate } = useContext(DateContext);
     const [newEventDescription, setNewEventDescription] = useState<string>('');
+    const [newEventDate, setNewEventDate] = useState<Date | null>(
+        new Date(selectedDate as string)
+    );
 
-    const handleSubmit = () => {
+    const [postEvent, { isLoading, isError }] = usePostEventMutation();
+    const { refetch } = useGetEventsQuery();
+
+    if (isError) {
+        return (
+            <div>
+                <h1>Error getting calendar events</h1>
+            </div>
+        );
+    }
+
+    if (isLoading) {
+        return (
+            <div>
+                <h1>Loading...</h1>
+            </div>
+        );
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const offset: number =
+            (newEventDate?.getTimezoneOffset() as number) / 60;
+
+        const correctedDate: string = new Date(
+            newEventDate?.setHours(newEventDate.getHours() - offset) as number
+        ).toISOString();
+
         console.log('submitting new event:');
-
         console.log({
-            date: selectedDate,
-            description: newEventDescription,
+            eventDate: correctedDate,
+            eventDescription: newEventDescription,
         });
-        setShowCreateForm(false);
+
+        try {
+            await postEvent({
+                eventDate: correctedDate,
+                eventDescription: newEventDescription,
+            }).unwrap();
+            refetch();
+            setNewEventDate(null);
+            setNewEventDescription('');
+            setShowCreateForm(false);
+        } catch (err) {
+            console.error('Failed to post event:', err);
+        }
+    };
+
+    const handleOnChange = (date: Date) => {
+        setNewEventDate(date);
     };
 
     return (
@@ -31,9 +81,9 @@ const CreateEventForm = ({ setShowCreateForm }: CreateEventFormProps) => {
                     placeholder='Enter event description'
                 />
                 <DatePicker
-                    selected={new Date(selectedDate as string)}
-                    onChange={(date) =>
-                        setSelectedDate(date?.toISOString() as string)
+                    selected={newEventDate}
+                    onChange={(date: Date | null) =>
+                        handleOnChange(date as Date)
                     }
                     showTimeSelect
                     showTimeSelectOnly
