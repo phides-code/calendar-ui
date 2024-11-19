@@ -5,6 +5,7 @@ import CreateEventForm from './CreateEventForm';
 import { DateContext } from '../context/DateContext';
 import {
     selectEventsByDate,
+    useDeleteEventMutation,
     useGetEventsQuery,
     type CalendarEvent,
 } from '../features/events/eventsApiSlice';
@@ -18,7 +19,16 @@ const DateModal = ({ closeModal }: DateModalProps) => {
 
     const { selectedDate } = useContext(DateContext);
 
-    const { data, isError, isLoading } = useGetEventsQuery();
+    const {
+        data,
+        isError: queryError,
+        isLoading,
+        isFetching,
+    } = useGetEventsQuery();
+    const [deleteEvent, { isError: deleteError, isLoading: isDeleteLoading }] =
+        useDeleteEventMutation();
+
+    const isError = deleteError || queryError;
 
     if (isError) {
         return (
@@ -36,12 +46,20 @@ const DateModal = ({ closeModal }: DateModalProps) => {
         );
     }
 
-    const eventsOnThisDay = selectEventsByDate(
+    let eventsOnThisDay = selectEventsByDate(
         data?.data as CalendarEvent[],
         selectedDate as string
     );
 
     const handleCreateClick = () => setShowCreateForm(true);
+
+    const handleDeleteEvent = async (id: string) => {
+        try {
+            await deleteEvent(id).unwrap();
+        } catch (err) {
+            console.error('Error deleting event:', err);
+        }
+    };
 
     return ReactDOM.createPortal(
         <Wrapper onClick={closeModal}>
@@ -52,7 +70,15 @@ const DateModal = ({ closeModal }: DateModalProps) => {
                     {eventsOnThisDay.map((event) => (
                         <li key={event.id}>
                             <div>{event.eventDate}</div>
-                            <div>{event.eventDescription}</div>
+                            <div>
+                                {event.eventDescription}
+                                <button
+                                    onClick={() => handleDeleteEvent(event.id)}
+                                    disabled={isDeleteLoading || isFetching}
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>
