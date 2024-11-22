@@ -5,6 +5,7 @@ import {
     useGetEventsQuery,
     usePostEventMutation,
 } from '../features/events/eventsApiSlice';
+import styled from 'styled-components';
 
 interface CreateEventFormProps {
     setShowCreateForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -71,30 +72,53 @@ const CreateEventForm = ({ setShowCreateForm }: CreateEventFormProps) => {
     };
 
     return (
-        <div>
+        <Wrapper>
             <div>Create event</div>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type='text'
-                    value={newEventDescription}
-                    onChange={(e) => setNewEventDescription(e.target.value)}
-                    placeholder='Enter event description'
-                />
-                <DatePicker
-                    selected={newEventDate}
-                    onChange={(date: Date | null) =>
-                        handleOnChange(date as Date)
-                    }
-                    showTimeSelect
-                    showTimeSelectOnly
-                    timeIntervals={15}
-                    timeCaption='Time'
-                    dateFormat='HH:mm'
-                />
-                <button>Save</button>
-            </form>
-        </div>
+            <StyledForm onSubmit={handleSubmit}>
+                <div>
+                    <input
+                        type='text'
+                        value={newEventDescription}
+                        onChange={(e) => setNewEventDescription(e.target.value)}
+                        placeholder='Enter event description'
+                    />
+                </div>
+                <div>
+                    <DatePicker
+                        selected={newEventDate}
+                        onChange={(date: Date | null) =>
+                            handleOnChange(date as Date)
+                        }
+                        showTimeSelect
+                        showTimeSelectOnly
+                        timeIntervals={15}
+                        timeCaption='Time'
+                        dateFormat='HH:mm'
+                    />
+                </div>
+                <div>
+                    <StyledButton>Save</StyledButton>
+                </div>
+            </StyledForm>
+        </Wrapper>
     );
 };
+
+const Wrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+`;
+
+const StyledForm = styled.form`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+const StyledButton = styled.button`
+    width: 10rem;
+`;
 
 export default CreateEventForm;

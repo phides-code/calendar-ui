@@ -9,6 +9,7 @@ import {
     useGetEventsQuery,
     type CalendarEvent,
 } from '../features/events/eventsApiSlice';
+import EventListItem from './EventListItem';
 
 interface DateModalProps {
     closeModal: () => void;
@@ -25,8 +26,7 @@ const DateModal = ({ closeModal }: DateModalProps) => {
         isLoading,
         isFetching,
     } = useGetEventsQuery();
-    const [deleteEvent, { isError: deleteError, isLoading: isDeleteLoading }] =
-        useDeleteEventMutation();
+    const [, { isError: deleteError }] = useDeleteEventMutation();
 
     const isError = deleteError || queryError;
 
@@ -38,13 +38,7 @@ const DateModal = ({ closeModal }: DateModalProps) => {
         );
     }
 
-    if (isLoading) {
-        return (
-            <div>
-                <h1>Loading...</h1>
-            </div>
-        );
-    }
+    const loading: boolean = isLoading || isFetching;
 
     let eventsOnThisDay = selectEventsByDate(
         data?.data as CalendarEvent[],
@@ -53,41 +47,61 @@ const DateModal = ({ closeModal }: DateModalProps) => {
 
     const handleCreateClick = () => setShowCreateForm(true);
 
-    const handleDeleteEvent = async (id: string) => {
-        try {
-            await deleteEvent(id).unwrap();
-        } catch (err) {
-            console.error('Error deleting event:', err);
+    const formatDateToReadableUTCString = (dateString: string) => {
+        const date = new Date(dateString); // Parse the input date string
+        if (isNaN(date.getTime())) {
+            throw new Error('Invalid date string');
         }
+        const options: Intl.DateTimeFormatOptions = {
+            weekday: 'short', // "Mon", "Tue", etc.
+            month: 'short', // "Jan", "Feb", etc.
+            day: '2-digit', // "01", "02", etc.
+            year: 'numeric', // "2023"
+            timeZone: 'UTC', // Force UTC
+        };
+        return date.toLocaleDateString('en-US', options);
     };
 
     return ReactDOM.createPortal(
         <Wrapper onClick={closeModal}>
             <ModalContent onClick={(e) => e.stopPropagation()}>
-                <div>{selectedDate}</div>
-                <div>Events:</div>
-                <ul>
-                    {eventsOnThisDay.map((event) => (
-                        <li key={event.id}>
-                            <div>{event.eventDate}</div>
-                            <div>
-                                {event.eventDescription}
-                                <button
-                                    onClick={() => handleDeleteEvent(event.id)}
-                                    disabled={isDeleteLoading || isFetching}
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-
-                <button onClick={handleCreateClick}>Create event</button>
-                {showCreateForm && (
-                    <CreateEventForm setShowCreateForm={setShowCreateForm} />
+                {loading ? (
+                    <div>Loading...</div>
+                ) : (
+                    <>
+                        {' '}
+                        <DateWrapper>
+                            {formatDateToReadableUTCString(
+                                selectedDate as string
+                            )}
+                        </DateWrapper>
+                        {eventsOnThisDay.length > 0 ? (
+                            <div>Events:</div>
+                        ) : (
+                            <div>No events on this day.</div>
+                        )}
+                        <ul>
+                            {eventsOnThisDay.map((event) => (
+                                <EventListItem key={event.id} event={event} />
+                            ))}
+                        </ul>
+                        <ButtonAndFormWrapper>
+                            {!showCreateForm && (
+                                <CreateButton onClick={handleCreateClick}>
+                                    Create event
+                                </CreateButton>
+                            )}
+                            {showCreateForm && (
+                                <CreateEventForm
+                                    setShowCreateForm={setShowCreateForm}
+                                />
+                            )}
+                            <CloseButton onClick={closeModal}>
+                                Close
+                            </CloseButton>
+                        </ButtonAndFormWrapper>
+                    </>
                 )}
-                <button onClick={closeModal}>Close</button>
             </ModalContent>
         </Wrapper>,
         document.getElementById('modal-root')!
@@ -109,12 +123,31 @@ const Wrapper = styled.div`
 
 const ModalContent = styled.div`
     background: white;
-    padding: 2rem;
+    padding: 1rem;
     border-radius: 8px;
     position: relative;
     width: 90%;
     max-width: 500px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 `;
+
+const DateWrapper = styled.div`
+    margin-bottom: 0.4rem;
+    font-weight: bold;
+`;
+
+const ButtonAndFormWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+`;
+
+const StyledButton = styled.button`
+    width: 10rem;
+`;
+
+const CloseButton = styled(StyledButton)``;
+const CreateButton = styled(StyledButton)``;
 
 export default DateModal;
