@@ -40,7 +40,7 @@ const DateModal = ({ closeModal }: DateModalProps) => {
 
     const loading: boolean = isLoading || isFetching;
 
-    let eventsOnThisDay = selectEventsByDate(
+    const eventsOnThisDay = selectEventsByDate(
         data?.data as CalendarEvent[],
         selectedDate as string
     );
